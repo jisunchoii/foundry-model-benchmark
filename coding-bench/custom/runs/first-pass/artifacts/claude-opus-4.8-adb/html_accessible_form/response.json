@@ -1,0 +1,5 @@
+{
+  "files": {
+    "index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Login</title>\n</head>\n<body>\n  <form>\n    <label for=\"email\">Email</label>\n    <input type=\"email\" id=\"email\" name=\"email\" required autocomplete=\"email\">\n    <label for=\"password\">Password</label>\n    <input type=\"password\" id=\"password\" name=\"password\" required autocomplete=\"current-password\">\n    <button type=\"submit\">Log in</button>\n  </form>\n</body>\n</html>\n"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "id": "html_accessible_form",
+  "prompt": "Fix index.html. Create an accessible login form with labeled email and password inputs, required attributes, autocomplete hints, a submit button, and no external scripts or styles.",
+  "command": ["python", "validate.py"],
+  "timeout_seconds": 10
+}

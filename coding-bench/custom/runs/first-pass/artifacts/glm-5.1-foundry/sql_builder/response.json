@@ -1,0 +1,5 @@
+{
+  "files": {
+    "solution.py": "import re\n\ndef build_select(table, filters, order_by=None, limit=None):\n    def validate(identifier):\n        if not re.match(r'^[a-zA-Z0-9_]+$', str(identifier)):\n            raise ValueError(f\"Invalid identifier: {identifier}\")\n\n    validate(table)\n\n    params = []\n    sql = f\"SELECT * FROM {table}\"\n\n    if filters:\n        conditions = []\n        for key, value in filters.items():\n            validate(key)\n            conditions.append(f\"{key} = ?\")\n            params.append(value)\n        sql += \" WHERE \" + \" AND \".join(conditions)\n\n    if order_by is not None:\n        validate(order_by)\n        sql += f\" ORDER BY {order_by}\"\n\n    if limit is not None:\n        sql += \" LIMIT ?\"\n        params.append(limit)\n\n    return sql, params\n"
+  }
+}

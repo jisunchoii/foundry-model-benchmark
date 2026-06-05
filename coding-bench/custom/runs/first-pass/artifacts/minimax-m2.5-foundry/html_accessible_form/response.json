@@ -1,0 +1,5 @@
+{
+  "files": {
+    "index.html": "<form>\n  <label for=\"email\">email</label>\n  <input type=\"email\" id=\"email\" required autocomplete=\"email\">\n  <label for=\"password\">password</label>\n  <input type=\"password\" id=\"password\" required autocomplete=\"current-password\">\n  <button type=\"submit\">Go</button>\n</form>\n"
+  }
+}

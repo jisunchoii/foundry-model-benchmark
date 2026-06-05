@@ -1,0 +1,5 @@
+{
+  "files": {
+    "solution.py": "import re\n\n\ndef build_toc(markdown):\n    counts = {}\n    toc = []\n\n    for line in markdown.splitlines():\n        match = re.match(r\"^(#{2,3})\\s+(.+?)\\s*$\", line)\n        if not match:\n            continue\n\n        level = len(match.group(1))\n        title = re.sub(r\"\\s+#+\\s*$\", \"\", match.group(2)).strip()\n        anchor = re.sub(r\"[^a-z0-9\\s-]\", \"\", title.lower())\n        anchor = re.sub(r\"\\s+\", \"-\", anchor).strip(\"-\")\n\n        count = counts.get(anchor, 0)\n        counts[anchor] = count + 1\n        if count:\n            anchor = f\"{anchor}-{count}\"\n\n        indent = \"  \" if level == 3 else \"\"\n        toc.append(f\"{indent}- [{title}](#{anchor})\")\n\n    return \"\\n\".join(toc)\n"
+  }
+}

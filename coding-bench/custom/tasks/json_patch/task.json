@@ -1,0 +1,6 @@
+{
+  "id": "json_patch",
+  "prompt": "Fix solution.py. Implement apply_patch(document, operations) for a small JSON Patch subset: add, replace, and remove using slash-separated paths for dictionaries and lists. Do not mutate the input document.",
+  "command": ["python", "-m", "unittest", "discover", "-s", "tests", "-q"],
+  "timeout_seconds": 10
+}

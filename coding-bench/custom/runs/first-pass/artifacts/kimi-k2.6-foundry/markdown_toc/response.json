@@ -1,0 +1,5 @@
+{
+  "files": {
+    "solution.py": "def build_toc(markdown):\n    counts = {}\n    toc_lines = []\n    for line in markdown.splitlines():\n        if line.startswith(\"## \"):\n            level = 2\n            text = line[3:].strip()\n        elif line.startswith(\"### \"):\n            level = 3\n            text = line[4:].strip()\n        else:\n            continue\n        \n        base = \"\".join(c for c in text.lower() if c.isalnum() or c == \" \").replace(\" \", \"-\")\n        count = counts.get(base, 0)\n        if count:\n            anchor = f\"{base}-{count}\"\n        else:\n            anchor = base\n        counts[base] = count + 1\n        \n        indent = \"  \" if level == 3 else \"\"\n        toc_lines.append(f\"{indent}- [{text}](#{anchor})\")\n    \n    return \"\\n\".join(toc_lines)"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "id": "package_stats",
+  "prompt": "Fix the stats package. Implement mean, median, and percentile(values, p). Validate empty inputs, keep the package API in stats/__init__.py, and do not use third-party libraries.",
+  "command": ["python", "-m", "unittest", "discover", "-s", "tests", "-q"],
+  "timeout_seconds": 10
+}

@@ -1,0 +1,5 @@
+{
+  "files": {
+    "solution.py": "import re\n\ndef slugify(text):\n    if not text:\n        return \"\"\n    \n    # Lowercase\n    text = text.lower()\n    \n    # Remove punctuation (keep only alphanumeric, whitespace, underscore)\n    text = re.sub(r'[^\\w\\s]', '', text)\n    \n    # Replace runs of whitespace and underscores with single hyphen\n    text = re.sub(r'[\\s_]+', '-', text)\n    \n    # Trim hyphens from start and end\n    text = text.strip('-')\n    \n    return text\n"
+  }
+}

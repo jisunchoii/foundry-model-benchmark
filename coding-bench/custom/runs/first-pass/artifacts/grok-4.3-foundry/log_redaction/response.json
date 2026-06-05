@@ -1,0 +1,5 @@
+{
+  "files": {
+    "solution.py": "import re\n\ndef redact(text):\n    def mask_email(match):\n        email = match.group(0)\n        local, domain = email.split('@')\n        if len(local) > 1:\n            return local[0] + '***@' + domain\n        return email\n    text = re.sub(r'[\\w\\.-]+@[\\w\\.-]+\\.\\w+', mask_email, text)\n    text = re.sub(r'Bearer\\s+[\\w\\.-]+', 'Bearer [REDACTED]', text)\n    def mask_sk(match):\n        key = match.group(0)\n        return key[:3] + '...' + key[-4:]\n    text = re.sub(r'sk-[a-zA-Z0-9]+', mask_sk, text)\n    def mask_card(match):\n        card = match.group(0)\n        return card[:4] + '********' + card[-4:]\n    text = re.sub(r'\\b\\d{16}\\b', mask_card, text)\n    return text\n"
+  }
+}
