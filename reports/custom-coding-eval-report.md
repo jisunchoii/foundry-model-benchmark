@@ -2,7 +2,7 @@
 
 ## 목적
 
-공개 benchmark 전체 재현이 아니라, Azure Foundry/ADB에서 실제로 호출 가능한 모델들이 작은 coding task를 얼마나 안정적으로 해결하는지 비교했습니다.
+공개 benchmark 전체 재현이 아니라, Microsoft Foundry에서 실제로 호출 가능한 모델들이 작은 coding task를 얼마나 안정적으로 해결하는지 비교했습니다.
 
 이 평가는 SWE-bench, Aider Polyglot, LiveCodeBench와 같은 공개 benchmark를 대체하지 않습니다. 대신 같은 prompt/채점기/반복 조건에서 모델별 안정성, latency, 비용 경향을 보는 내부 파일럿입니다.
 
@@ -12,9 +12,9 @@
 | --- | --- |
 | Task 수 | 10개 |
 | 반복 | 전체 모델 5회 반복 |
-| 총 호출 | 300회 |
+| 총 호출 | 350회 (7개 모델 × 10 task × 5회) |
 | 채점 | 각 task의 Python unittest 또는 deterministic validator 통과 여부 |
-| 결과 위치 | `coding-bench\custom\runs\repeat-5x-all-models` |
+| 결과 위치 | `coding-bench\custom\runs\repeat-5x-all-models` (DeepSeek는 `runs\deepseek-5x`) |
 
 ### Task 목록
 
@@ -35,6 +35,7 @@
 
 | 모델 | 통과 | 전체 호출 | 통과율 | 평균 지연시간 | P50 | P95 | 추정 token 비용 | 통과 1건당 추정 비용 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| DeepSeek-V4-Pro Foundry | 50 | 50 | 100.0% | 6.24s | 4.410s | 16.323s | $0.073959 | $0.001479 |
 | Claude Opus 4.8 ADB | 50 | 50 | 100.0% | 7.90s | 7.657s | 10.225s | $0.551025 | $0.011020 |
 | GPT-5.5 Foundry | 50 | 50 | 100.0% | 8.674s | 7.429s | 14.484s | $0.760830 | $0.015217 |
 | Grok 4.3 Foundry | 50 | 50 | 100.0% | 18.54s | 19.465s | 28.399s | $0.219525 | $0.004391 |
@@ -42,10 +43,13 @@
 | Kimi K2.6 Foundry | 38 | 50 | 76.0% | 25.003s | 20.555s | 46.272s | $0.371297 | $0.009771 |
 | MiniMax M2.5 Foundry | 36 | 50 | 72.0% | 10.337s | 9.417s | 15.342s | $0.059045 | $0.001640 |
 
+> 비용 = `prompt_tokens × input단가 + completion_tokens × output단가` (모델별 $/1M 단가 적용). 통과 1건당 비용 = 추정 token 비용 ÷ 통과 수. **모델별 Foundry 단가와 출처는 [SWE-bench 비용 분석](./swe-bench-cost-analysis.md) 참고.**
+
 ## Task 안정성
 
 | 모델 | 불안정/실패 집중 task |
 | --- | --- |
+| DeepSeek-V4-Pro Foundry | 없음 |
 | Claude Opus 4.8 ADB | 없음 |
 | GPT-5.5 Foundry | 없음 |
 | Grok 4.3 Foundry | 없음 |
@@ -69,18 +73,14 @@
 - Kimi K2.6과 MiniMax M2.5는 공개 coding benchmark에서 강하게 보고되지만, 이번 custom eval에서는 출력 형식/특정 deterministic task에서 불안정했습니다.
 - Grok 4.3은 공개 numeric coding benchmark가 부족했지만, 이번 custom eval에서는 50/50으로 안정적이었습니다.
 - Claude Opus 4.8과 GPT-5.5는 작은 unit-test형 task에서는 가장 안정적이었습니다.
+- DeepSeek-V4-Pro는 50/50(100%)으로 완벽했고, **평균 지연 6.24s로 전 모델 중 가장 빨랐습니다**(reasoning 토큰을 별도로 청구하지 않아 출력도 가벼움). 다만 일부 호출에서 P95 16.3s로 latency 분산(편차 6.6s)이 있었습니다.
 - GLM-5.1은 전반적으로 준수했지만 markdown anchor처럼 세부 규칙이 많은 task에서 반복 실패했습니다.
 
 ## 결론
 
-작은 코드 생성/수정 task에서는 Claude Opus 4.8, GPT-5.5, Grok 4.3이 최상위입니다. 다만 이 결과만으로 SWE-bench식 repository patch 성능을 판단하면 안 되며, SWE-bench 결과는 별도 리포트에서 봐야 합니다.
+작은 코드 생성/수정 task에서는 **DeepSeek-V4-Pro, Claude Opus 4.8, GPT-5.5, Grok 4.3**이 모두 100% 통과로 최상위이며, 이 중 **DeepSeek-V4-Pro가 평균 지연 기준 가장 빠릅니다**. 다만 이 결과만으로 SWE-bench식 repository patch 성능을 판단하면 안 되며, SWE-bench 결과는 별도 리포트에서 봐야 합니다(전수 500개에서는 Kimi > DeepSeek > MiniMax > Grok > GLM 순 — [Verified-500 리포트](./swe-bench-verified-500-report.md) 참고).
 
 ## 원본 산출물
 
-| 항목 | 경로 |
-| --- | --- |
-| 5회 반복 리포트 | `C:\Users\jisunchoi\projects\foundry-model-coding-benchmark\coding-bench\custom\runs\repeat-5x-all-models\repeat-5x-all-report.md` |
-| 5회 반복 요약 CSV | `C:\Users\jisunchoi\projects\foundry-model-coding-benchmark\coding-bench\custom\runs\repeat-5x-all-models\repeat-5x-all-summary.csv` |
-| 5회 반복 실패 CSV | `C:\Users\jisunchoi\projects\foundry-model-coding-benchmark\coding-bench\custom\runs\repeat-5x-all-models\repeat-5x-all-failures.csv` |
-| 1차 실행 결과 | `C:\Users\jisunchoi\projects\foundry-model-coding-benchmark\coding-bench\custom\runs\first-pass` |
+원본 실행 산출물(리포트·요약/실패 CSV·비용 명세)은 [coding-bench/custom/runs/repeat-5x-all-models/](../coding-bench/custom/runs/repeat-5x-all-models/)와 [coding-bench/custom/runs/first-pass/](../coding-bench/custom/runs/first-pass/)에 있습니다. DeepSeek-V4-Pro 5회 반복 raw 산출물은 [coding-bench/custom/runs/deepseek-5x/](../coding-bench/custom/runs/deepseek-5x/)에 있습니다(rep1~rep5).
 
