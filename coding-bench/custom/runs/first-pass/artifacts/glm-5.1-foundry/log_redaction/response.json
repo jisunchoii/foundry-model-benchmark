@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "import re\n\n\ndef redact(text):\n    # Mask emails: first char + *** + @domain\n    text = re.sub(\n        r'([a-zA-Z0-9])[a-zA-Z0-9._%+-]*@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})',\n        r'\\1***@\\2', text\n    )\n\n    # Mask Bearer tokens\n    text = re.sub(r'Bearer\\s+\\S+', 'Bearer [REDACTED]', text)\n\n    # Mask sk-style API keys: sk-... + last 4 chars\n    def mask_sk(match):\n        key = match.group(0)\n        return 'sk-...' + key[-4:]\n    text = re.sub(r'sk-[a-zA-Z0-9]+', mask_sk, text)\n\n    # Mask 16-digit card numbers: first 4 + ******** + last 4\n    text = re.sub(r'\\b(\\d{4})\\d{12}(\\d{4})\\b', r'\\1********\\2', text)\n\n    return text\n"
-  }
-}

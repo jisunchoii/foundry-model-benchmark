@@ -1,6 +1,0 @@
-{
-  "id": "log_redaction",
-  "prompt": "Fix solution.py. Implement redact(text) to mask emails, bearer tokens, sk-style API keys, and 16-digit card numbers while preserving enough context for debugging.",
-  "command": ["python", "-m", "unittest", "discover", "-s", "tests", "-q"],
-  "timeout_seconds": 10
-}

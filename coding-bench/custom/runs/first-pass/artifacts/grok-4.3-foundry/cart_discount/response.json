@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "def total_due(items, tax_rate):\n    subtotal = 0.0\n    discountable = 0.0\n    for item in items:\n        line = item[\"price\"] * item.get(\"quantity\", 1)\n        subtotal += line\n        if item.get(\"category\") != \"gift_card\":\n            discountable += line\n    if subtotal > 100:\n        subtotal -= discountable * 0.1\n    return round(subtotal * (1 + tax_rate), 2)\n"
-  }
-}

@@ -14,7 +14,7 @@
 | 반복 | 전체 모델 5회 반복 |
 | 총 호출 | 350회 (7개 모델 × 10 task × 5회) |
 | 채점 | 각 task의 Python unittest 또는 deterministic validator 통과 여부 |
-| 결과 위치 | `coding-bench\custom\runs\repeat-5x-all-models` (DeepSeek는 `runs\deepseek-5x`) |
+| 결과 위치 | 로컬 `coding-bench\custom\runs\repeat-5x-all-models` (DeepSeek는 `runs\deepseek-5x`) |
 
 ### Task 목록
 
@@ -43,7 +43,7 @@
 | Kimi K2.6 Foundry | 38 | 50 | 76.0% | 25.003s | 20.555s | 46.272s | $0.371297 | $0.009771 |
 | MiniMax M2.5 Foundry | 36 | 50 | 72.0% | 10.337s | 9.417s | 15.342s | $0.059045 | $0.001640 |
 
-> 비용 = `prompt_tokens × input단가 + completion_tokens × output단가` (모델별 $/1M 단가 적용). 통과 1건당 비용 = 추정 token 비용 ÷ 통과 수. **모델별 Foundry 단가와 출처는 [SWE-bench 비용 분석](./swe-bench-cost-analysis.md) 참고.**
+> 비용 = `prompt_tokens × input단가 + completion_tokens × output단가` (모델별 $/1M 단가 적용). 통과 1건당 비용 = 추정 token 비용 ÷ 통과 수.
 
 ## Task 안정성
 
@@ -78,9 +78,5 @@
 
 ## 결론
 
-작은 코드 생성/수정 task에서는 **DeepSeek-V4-Pro, Claude Opus 4.8, GPT-5.5, Grok 4.3**이 모두 100% 통과로 최상위이며, 이 중 **DeepSeek-V4-Pro가 평균 지연 기준 가장 빠릅니다**. 다만 이 결과만으로 SWE-bench식 repository patch 성능을 판단하면 안 되며, SWE-bench 결과는 별도 리포트에서 봐야 합니다(전수 500개에서는 Kimi > DeepSeek > MiniMax > Grok > GLM 순 — [Verified-500 리포트](./swe-bench-verified-500-report.md) 참고).
-
-## 원본 산출물
-
-원본 실행 산출물(리포트·요약/실패 CSV·비용 명세)은 [coding-bench/custom/runs/repeat-5x-all-models/](../coding-bench/custom/runs/repeat-5x-all-models/)와 [coding-bench/custom/runs/first-pass/](../coding-bench/custom/runs/first-pass/)에 있습니다. DeepSeek-V4-Pro 5회 반복 raw 산출물은 [coding-bench/custom/runs/deepseek-5x/](../coding-bench/custom/runs/deepseek-5x/)에 있습니다(rep1~rep5).
+작은 코드 생성/수정 task에서는 **DeepSeek-V4-Pro, Claude Opus 4.8, GPT-5.5, Grok 4.3**이 모두 100% 통과로 최상위이며, 이 중 **DeepSeek-V4-Pro가 평균 지연 기준 가장 빠릅니다**. 다만 이 결과만으로 SWE-bench식 repository patch 성능을 판단하면 안 되며, SWE-bench 결과는 별도 리포트에서 봐야 합니다(전수 500개에서는 Kimi > DeepSeek > MiniMax > Grok > GLM 순 — [Verified 리포트](./swe-bench-verified-500-report.md) 참고).
 

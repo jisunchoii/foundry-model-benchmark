@@ -1,6 +1,0 @@
-{
-  "id": "markdown_toc",
-  "prompt": "Fix solution.py. Implement build_toc(markdown) to return a newline-separated Markdown table of contents for level 2 and 3 headings only. Use two spaces of indentation for level 3 and GitHub-style lowercase hyphen anchors.",
-  "command": ["python", "-m", "unittest", "discover", "-s", "tests", "-q"],
-  "timeout_seconds": 10
-}

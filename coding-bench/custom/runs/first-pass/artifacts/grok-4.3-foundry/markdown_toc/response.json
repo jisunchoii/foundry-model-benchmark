@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "import re\n\ndef slugify(text):\n    text = text.lower()\n    text = re.sub(r'[^a-z0-9\\s-]', '', text)\n    text = re.sub(r'[\\s-]+', '-', text).strip('-')\n    return text\n\ndef build_toc(markdown):\n    toc = []\n    seen = {}\n    for line in markdown.splitlines():\n        match = re.match(r'^(#{2,3})\\s+(.+)$', line.strip())\n        if match:\n            hashes, text = match.groups()\n            level = len(hashes)\n            if level not in (2, 3):\n                continue\n            base = slugify(text)\n            count = seen.get(base, 0)\n            anchor = base if count == 0 else f\"{base}-{count}\"\n            seen[base] = count + 1\n            indent = \"  \" if level == 3 else \"\"\n            toc.append(f\"{indent}- [{text}](#{anchor})\")\n    return \"\\n\".join(toc)\n"
-  }
-}

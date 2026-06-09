@@ -86,7 +86,7 @@ SWE-bench는 실제 GitHub 오픈소스 저장소(django, scikit-learn, astropy 
 
 ## 산출물 경로
 
-10-instance 파일럿의 보존 산출물(리포트·요약 CSV·공식 평가 JSON)은 [coding-bench/swe-bench/runs/clean-swe-10-v2/](../coding-bench/swe-bench/runs/clean-swe-10-v2/)에 있습니다. 100-instance 확장 실험은 모델별 전용 Azure VM에서 실행했으며, 모델별 예측(`preds.json`)·공식 평가 리포트(`report.json`)·trajectory 로그가 함께 보존되어 있습니다.
+10-instance 파일럿의 보존 산출물(리포트·요약 CSV·공식 평가 JSON)은 로컬 `coding-bench/swe-bench/runs/clean-swe-10-v2/`에 있습니다. 100-instance 확장 실험은 모델별 전용 Azure VM에서 실행했으며, 모델별 예측(`preds.json`)·공식 평가 리포트(`report.json`)·trajectory 로그가 함께 보존되어 있습니다.
 
 
 

@@ -1,6 +1,0 @@
-{
-  "id": "interval_merge",
-  "prompt": "Fix solution.py. Implement merge_intervals(intervals) to return sorted non-overlapping intervals. Merge intervals that overlap or touch. Reject intervals where start is greater than end.",
-  "command": ["python", "-m", "unittest", "discover", "-s", "tests", "-q"],
-  "timeout_seconds": 10
-}

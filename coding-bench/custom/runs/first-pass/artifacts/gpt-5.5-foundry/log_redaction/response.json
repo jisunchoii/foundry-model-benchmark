@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "import re\n\n\ndef redact(text):\n    text = re.sub(\n        r\"\\b([A-Za-z0-9._%+-])([A-Za-z0-9._%+-]*)@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})\\b\",\n        lambda m: f\"{m.group(1)}***@{m.group(3)}\",\n        text,\n    )\n    text = re.sub(r\"\\b(Bearer)(\\s+)\\S+\", r\"\\1\\2[REDACTED]\", text)\n    text = re.sub(\n        r\"\\bsk-[A-Za-z0-9_-]+\\b\",\n        lambda m: \"sk-...\" + m.group(0)[-4:],\n        text,\n    )\n    text = re.sub(r\"(?<!\\d)(\\d{4})\\d{8}(\\d{4})(?!\\d)\", r\"\\1********\\2\", text)\n    return text\n"
-  }
-}

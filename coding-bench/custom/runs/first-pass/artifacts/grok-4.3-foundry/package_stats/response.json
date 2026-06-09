@@ -1,6 +1,0 @@
-{
-  "files": {
-    "stats/__init__.py": "from .calculator import mean, median, percentile\n\n__all__ = [\"mean\", \"median\", \"percentile\"]\n",
-    "stats/calculator.py": "def mean(values):\n    if not values:\n        raise ValueError(\"empty input\")\n    return sum(values) / len(values)\n\n\ndef median(values):\n    if not values:\n        raise ValueError(\"empty input\")\n    sorted_vals = sorted(values)\n    n = len(sorted_vals)\n    mid = n // 2\n    if n % 2 == 1:\n        return sorted_vals[mid]\n    else:\n        return (sorted_vals[mid - 1] + sorted_vals[mid]) / 2\n\n\ndef percentile(values, p):\n    if not values:\n        raise ValueError(\"empty input\")\n    if not (0 <= p <= 100):\n        raise ValueError(\"p out of range\")\n    sorted_vals = sorted(values)\n    n = len(sorted_vals)\n    index = (p / 100.0) * (n - 1)\n    lower = int(index)\n    upper = lower + 1\n    if upper >= n:\n        return sorted_vals[-1]\n    fraction = index - lower\n    return sorted_vals[lower] + fraction * (sorted_vals[upper] - sorted_vals[lower])\n"
-  }
-}

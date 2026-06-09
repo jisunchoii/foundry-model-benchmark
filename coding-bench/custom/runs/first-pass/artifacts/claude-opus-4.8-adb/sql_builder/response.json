@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "import re\n\n_IDENT = re.compile(r'^[A-Za-z0-9_]+$')\n\n\ndef _check(name):\n    if not isinstance(name, str) or not _IDENT.match(name):\n        raise ValueError(f\"Invalid identifier: {name!r}\")\n    return name\n\n\ndef build_select(table, filters, order_by=None, limit=None):\n    _check(table)\n    sql = \"SELECT * FROM \" + table\n    params = []\n    if filters:\n        conditions = []\n        for key, value in filters.items():\n            _check(key)\n            conditions.append(f\"{key} = ?\")\n            params.append(value)\n        sql += \" WHERE \" + \" AND \".join(conditions)\n    if order_by:\n        _check(order_by)\n        sql += \" ORDER BY \" + order_by\n    if limit is not None:\n        sql += \" LIMIT ?\"\n        params.append(limit)\n    return sql, params\n"
-  }
-}

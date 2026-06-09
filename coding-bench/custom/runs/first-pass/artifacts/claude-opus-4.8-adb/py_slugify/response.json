@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "import re\n\n\ndef slugify(text):\n    text = text.lower()\n    text = re.sub(r\"[^a-z0-9\\s_]\", \"\", text)\n    text = re.sub(r\"[\\s_]+\", \"-\", text)\n    return text.strip(\"-\")\n"
-  }
-}

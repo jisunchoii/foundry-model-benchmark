@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "def merge_intervals(intervals):\n    for start, end in intervals:\n        if start > end:\n            raise ValueError\n    if not intervals:\n        return []\n    sorted_intervals = sorted(intervals)\n    merged = [sorted_intervals[0]]\n    for current in sorted_intervals[1:]:\n        if current[0] <= merged[-1][1]:\n            merged[-1] = (merged[-1][0], max(merged[-1][1], current[1]))\n        else:\n            merged.append(current)\n    return merged"
-  }
-}

@@ -1,6 +1,0 @@
-{
-  "id": "py_slugify",
-  "prompt": "Fix solution.py. Implement slugify(text) so it lowercases ASCII text, removes punctuation, converts whitespace/underscore runs to single hyphens, trims hyphens, and returns an empty string for empty input.",
-  "command": ["python", "-m", "unittest", "discover", "-s", "tests", "-q"],
-  "timeout_seconds": 10
-}

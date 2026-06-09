@@ -1,6 +1,0 @@
-{
-  "id": "cart_discount",
-  "prompt": "Fix solution.py. total_due(items, tax_rate) receives items as dictionaries with price, quantity, and optional category. Apply quantity first. If the overall cart subtotal is above 100, apply a 10% discount to non-gift-card items only. Never discount gift cards. Then apply tax. Return a value rounded to 2 decimals.",
-  "command": ["python", "-m", "unittest", "discover", "-s", "tests", "-q"],
-  "timeout_seconds": 10
-}

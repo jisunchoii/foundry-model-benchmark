@@ -1,6 +1,0 @@
-{
-  "id": "rate_limiter",
-  "prompt": "Fix solution.py. Implement FixedWindowLimiter. allow(key, timestamp) returns True while a key has remaining requests in its current fixed window, otherwise False. Windows are per key.",
-  "command": ["python", "-m", "unittest", "discover", "-s", "tests", "-q"],
-  "timeout_seconds": 10
-}

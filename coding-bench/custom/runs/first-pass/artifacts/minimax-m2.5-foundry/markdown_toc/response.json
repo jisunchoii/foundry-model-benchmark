@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "def build_toc(markdown):\n    lines = markdown.splitlines()\n    toc_lines = []\n    seen = {}  # heading text -> count\n    \n    for line in lines:\n        if line.startswith(\"## \"):\n            level = 2\n            text = line[3:].strip()\n        elif line.startswith(\"### \"):\n            level = 3\n            text = line[4:].strip()\n        else:\n            continue\n        \n        # Create anchor (GitHub-style lowercase hyphen)\n        anchor = text.lower().replace(\" \", \"-\")\n        \n        # Handle duplicates: first occurrence has no suffix, others get -1, -2, etc.\n        if text in seen:\n            seen[text] += 1\n            anchor = f\"{anchor}-{seen[text]}\"\n        else:\n            seen[text] = 0\n        \n        # Format line with appropriate indentation\n        if level == 2:\n            toc_lines.append(f\"- [{text}](#{anchor})\")\n        else:  # level 3\n            toc_lines.append(f\"  - [{text}](#{anchor})\")\n    \n    return \"\\n\".join(toc_lines)\n"
-  }
-}

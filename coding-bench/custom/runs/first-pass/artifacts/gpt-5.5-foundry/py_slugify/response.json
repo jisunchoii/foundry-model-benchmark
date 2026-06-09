@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "def slugify(text):\n    words = []\n    current = []\n\n    for char in text.lower():\n        if char.isascii() and char.isalnum():\n            current.append(char)\n        elif char.isspace() or char == \"_\":\n            if current:\n                words.append(\"\".join(current))\n                current = []\n        # Other punctuation is ignored.\n\n    if current:\n        words.append(\"\".join(current))\n\n    return \"-\".join(words)\n"
-  }
-}

@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "def build_select(table, filters, order_by=None, limit=None):\n    def _validate_identifier(name):\n        if not name or not all(c.isalnum() or c == '_' for c in name):\n            raise ValueError(\"Invalid identifier\")\n\n    _validate_identifier(table)\n\n    sql = f\"SELECT * FROM {table}\"\n    params = []\n\n    if filters:\n        for key in filters:\n            _validate_identifier(key)\n        sql += \" WHERE \" + \" AND \".join(f\"{key} = ?\" for key in filters)\n        params.extend(filters.values())\n\n    if order_by is not None:\n        _validate_identifier(order_by)\n        sql += f\" ORDER BY {order_by}\"\n\n    if limit is not None:\n        sql += \" LIMIT ?\"\n        params.append(limit)\n\n    return sql, params\n"
-  }
-}

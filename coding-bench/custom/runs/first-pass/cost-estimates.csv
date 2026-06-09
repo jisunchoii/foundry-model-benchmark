@@ -1,7 +1,0 @@
-model_id,calls,passed,pass_rate,prompt_tokens,visible_completion_tokens,estimated_billed_output_tokens,total_tokens,avg_latency_seconds,input_usd_per_mtok,output_usd_per_mtok,estimated_token_cost_usd,estimated_cost_per_pass_usd,source_note
-claude-opus-4.8-adb,10,10,100%,5878,3296,3296,9174,6.9,5.0,25.0,0.11179,0.011179,Anthropic official pricing; Databricks contract may differ.
-glm-5.1-foundry,10,8,80%,3498,8990,8990,12488,17.29,1.4,4.4,0.044453,0.005557,Z.AI/Fireworks official pricing.
-gpt-5.5-foundry,10,10,100%,3588,3709,3709,7297,7.12,5.0,30.0,0.12921,0.012921,OpenAI public API; actual Azure deployment used PTU-hour billing.
-grok-4.3-foundry,10,10,100%,3494,1937,14847,18341,18.41,1.25,2.5,0.041485,0.004149,xAI official API pricing.
-kimi-k2.6-foundry,10,8,80%,2901,21595,21595,24496,24.63,0.95,4.0,0.089136,0.011142,Kimi official API pricing.
-minimax-m2.5-foundry,10,6,60%,3311,8251,8251,11562,26.65,0.3,1.2,0.010894,0.001816,MiniMax official API pricing.

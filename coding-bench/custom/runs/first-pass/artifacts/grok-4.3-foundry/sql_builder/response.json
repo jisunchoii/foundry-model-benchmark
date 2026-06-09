@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "def is_valid_identifier(ident):\n    if not isinstance(ident, str) or not ident:\n        return False\n    return all(c.isalnum() or c == '_' for c in ident)\n\ndef build_select(table, filters, order_by=None, limit=None):\n    if not is_valid_identifier(table):\n        raise ValueError(\"Invalid identifier\")\n    sql = \"SELECT * FROM \" + table\n    params = []\n    if filters:\n        conds = []\n        for key, value in filters.items():\n            if not is_valid_identifier(key):\n                raise ValueError(\"Invalid identifier\")\n            conds.append(f\"{key} = ?\")\n            params.append(value)\n        sql += \" WHERE \" + \" AND \".join(conds)\n    if order_by is not None:\n        if not is_valid_identifier(order_by):\n            raise ValueError(\"Invalid identifier\")\n        sql += \" ORDER BY \" + order_by\n    if limit is not None:\n        sql += \" LIMIT ?\"\n        params.append(limit)\n    return sql, params\n"
-  }
-}

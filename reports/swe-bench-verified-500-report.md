@@ -66,14 +66,14 @@
 모델별 전체 500개 실행의 **실제 청구 토큰**(traj `extra.response.usage` 합산)을 Azure Foundry 단가로 환산했습니다. 이 워크로드는 압도적으로 input-bound(완성 토큰 < prompt의 1.5%)이며, prompt 캐시 비중이 79~97%로 매우 높습니다.
 
 - **gross**: 모든 prompt 토큰을 input 정가로 청구 (캐시 할인 무시 → 상한).
-- **cache-adj**: cached 토큰에 캐시 단가 적용 (kimi $0.16, grok $0.20; minimax·glm은 input의 25%로 보수적 근사) → **실청구에 가까운 값**.
+- **cache-adj**: cached 토큰에 캐시 단가 적용 (kimi $0.16, grok $0.20, glm $0.286(Fireworks 실값); minimax는 input의 25%로 보수적 근사) → **실청구에 가까운 값**.
 
 | 모델 | input/output ($/1M) | prompt(M) | cache% | **gross 총액** | **gross /resolved** | **cache-adj 총액** | **cache-adj /resolved** |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | MiniMax M2.5 | 0.30 / 1.20 | 526.2 | 97.3% | $164.4 | $0.445 | **$49.2** | **$0.133** |
 | Grok 4.3 | 1.25 / 2.50 | 160.0 | 92.1% | $202.7 | $0.601 | **$48.0** | **$0.142** |
 | Kimi K2.6 | 0.95 / 4.00 | 512.2 | 78.7% | $510.7 | $1.337 | **$192.1** | **$0.503** |
-| GLM-5.1 | 1.00 / 3.20 | 788.8 | 93.3% | $807.7 | $2.440 | **$255.7** | **$0.773** |
+| GLM-5.1 | 1.54 / 4.84 | 788.8 | 93.3% | $1243.3 | $3.756 | **$320.5** | **$0.968** |
 | DeepSeek-V4-Pro | 1.74 / 3.48 | 550.3 | n/a¹ | $977.1 | $2.627 | — ¹ | — ¹ |
 
 ¹ DeepSeek Foundry 응답 형식은 `prompt_tokens_details.cached_tokens`를 채우지 않아 캐시율이 0으로 집계됩니다(실제 캐시 미사용이 아닐 수 있음) → **cache-adj 산출 불가, gross만 제시**. 단가는 [Azure AI Foundry 가격(DeepSeek)](https://azure.microsoft.com/en-us/pricing/details/ai-foundry-models/deepseek/) Global Standard input $1.74 / output $3.48 기준. gross = prompt 550.3M × 1.74 + completion 5.66M × 3.48 = $977.1.
@@ -81,7 +81,7 @@
 ### 비용 핵심 관찰
 
 - **MiniMax·Grok가 해결 건당 가장 저렴**($0.13~0.14, cache-adj). MiniMax는 낮은 input 단가(0.30) + 97% 캐시, Grok은 적은 총 토큰(prompt 160M, 다른 모델의 1/3) 덕분.
-- **GLM이 해결 건당 가장 비쌈**($0.77). 가장 많은 토큰(789M prompt) + 높은 단가(1.00) + 58 빈 패치로 분모(resolved) 작음.
+- **GLM이 해결 건당 가장 비쌈**($0.97). 가장 많은 토큰(789M prompt) + 높은 단가(input 1.54 / output 4.84, Fireworks Data Zone) + 58 빈 패치로 분모(resolved) 작음.
 - **Kimi**는 중상위 비용($0.50/resolved)이지만 **최고 해결률**이라 품질-비용 균형이 좋습니다.
 - output 토큰은 prompt의 1% 미만 — 총비용은 **input 단가 + 캐시 정책**이 좌우합니다.
 
@@ -102,7 +102,6 @@ Trajectory 아카이브(Blob `swebench-logs/`):
 
 ## 교차 참조
 
-- **토큰 비용 상세 분석**: [swe-bench-cost-analysis.md](./swe-bench-cost-analysis.md)
 - SWE-bench Lite 결과: [swe-bench-lite-report.md](./swe-bench-lite-report.md)
 - Trajectory 분석(500 전수): [swe-bench-trajectory-analysis-500.md](./swe-bench-trajectory-analysis-500.md)
 - Published 기준선: [benchmarks_baseline.md](../benchmarks/benchmarks_baseline.md)

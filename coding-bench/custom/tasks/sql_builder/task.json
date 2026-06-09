@@ -1,6 +1,0 @@
-{
-  "id": "sql_builder",
-  "prompt": "Fix solution.py. Implement build_select(table, filters, order_by=None, limit=None). Return (sql, params). Validate identifiers to allow only letters, digits, and underscores, use placeholders for values, and support equality filters joined by AND.",
-  "command": ["python", "-m", "unittest", "discover", "-s", "tests", "-q"],
-  "timeout_seconds": 10
-}

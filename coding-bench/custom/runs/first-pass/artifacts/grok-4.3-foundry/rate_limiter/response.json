@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "class FixedWindowLimiter:\n    def __init__(self, limit, window_seconds):\n        self.limit = limit\n        self.window_seconds = window_seconds\n        self.data = {}\n\n    def allow(self, key, timestamp):\n        window_start = (timestamp // self.window_seconds) * self.window_seconds\n        if key not in self.data or self.data[key][0] != window_start:\n            self.data[key] = [window_start, 0]\n        if self.data[key][1] < self.limit:\n            self.data[key][1] += 1\n            return True\n        return False\n"
-  }
-}

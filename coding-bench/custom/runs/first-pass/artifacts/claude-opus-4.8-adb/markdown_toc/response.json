@@ -1,5 +1,0 @@
-{
-  "files": {
-    "solution.py": "import re\n\n\ndef _slugify(text):\n    slug = text.lower()\n    slug = re.sub(r\"[^\\w\\s-]\", \"\", slug)\n    slug = re.sub(r\"\\s+\", \"-\", slug.strip())\n    return slug\n\n\ndef build_toc(markdown):\n    lines = []\n    seen = {}\n    for line in markdown.splitlines():\n        if line.startswith(\"### \"):\n            level = 3\n            text = line[4:].strip()\n        elif line.startswith(\"## \"):\n            level = 2\n            text = line[3:].strip()\n        else:\n            continue\n        base = _slugify(text)\n        if base in seen:\n            seen[base] += 1\n            anchor = f\"{base}-{seen[base]}\"\n        else:\n            seen[base] = 0\n            anchor = base\n        indent = \"  \" if level == 3 else \"\"\n        lines.append(f\"{indent}- [{text}](#{anchor})\")\n    return \"\\n\".join(lines)\n"
-  }
-}

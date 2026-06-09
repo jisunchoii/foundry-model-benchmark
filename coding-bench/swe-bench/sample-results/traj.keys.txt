@@ -1,5 +1,0 @@
-top-level keys: info, messages, trajectory_format, instance_id
-
-info keys: model_stats, config, mini_version, exit_status, submission
-
-messages[0]: {"role": "system", "content": "You are a helpful assistant that can interact with a computer shell to solve programming tasks."}
