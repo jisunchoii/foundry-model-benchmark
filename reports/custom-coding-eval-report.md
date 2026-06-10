@@ -1,39 +1,39 @@
 # Custom coding eval report
 
-## 목적
+## Purpose
 
-공개 benchmark 전체 재현이 아니라, Microsoft Foundry에서 실제로 호출 가능한 모델들이 작은 coding task를 얼마나 안정적으로 해결하는지 비교했습니다.
+Rather than reproducing a full public benchmark, this compares how reliably the models actually callable from Microsoft Foundry solve small coding tasks.
 
-이 평가는 SWE-bench, Aider Polyglot, LiveCodeBench와 같은 공개 benchmark를 대체하지 않습니다. 대신 같은 prompt/채점기/반복 조건에서 모델별 안정성, latency, 비용 경향을 보는 내부 파일럿입니다.
+This evaluation does not replace public benchmarks such as SWE-bench, Aider Polyglot, or LiveCodeBench. It is an internal pilot that looks at per-model stability, latency, and cost trends under the same prompt/grader/repetition conditions.
 
-## 평가 방식
+## Method
 
-| 항목 | 내용 |
+| Item | Detail |
 | --- | --- |
-| Task 수 | 10개 |
-| 반복 | 전체 모델 5회 반복 |
-| 총 호출 | 350회 (7개 모델 × 10 task × 5회) |
-| 채점 | 각 task의 Python unittest 또는 deterministic validator 통과 여부 |
-| 결과 위치 | 로컬 `coding-bench\custom\runs\repeat-5x-all-models` (DeepSeek는 `runs\deepseek-5x`) |
+| Tasks | 10 |
+| Repetitions | 5 reps across all models |
+| Total calls | 350 (7 models × 10 tasks × 5 reps) |
+| Grading | Pass/fail against each task's Python unittest or deterministic validator |
+| Result location | Local `coding-bench\custom\runs\repeat-5x-all-models` (DeepSeek under `runs\deepseek-5x`) |
 
-### Task 목록
+### Task list
 
-| Task | 내용 |
+| Task | Description |
 | --- | --- |
-| `py_slugify` | 공백/구두점/underscore 처리 slug 생성 |
-| `cart_discount` | 수량, gift card 제외, 조건부 할인/세금 계산 |
+| `py_slugify` | Slug generation handling whitespace/punctuation/underscores |
+| `cart_discount` | Quantity, gift-card exclusion, conditional discount/tax calculation |
 | `json_patch` | add/replace/remove JSON Patch subset |
-| `markdown_toc` | H2/H3 TOC 및 GitHub-style anchor |
+| `markdown_toc` | H2/H3 TOC and GitHub-style anchors |
 | `log_redaction` | email/token/API key/card masking |
-| `interval_merge` | interval 병합 |
+| `interval_merge` | Interval merging |
 | `rate_limiter` | per-key fixed-window limiter |
 | `sql_builder` | identifier validation + parameterized SELECT |
 | `html_accessible_form` | accessible login form |
-| `package_stats` | mean/median/percentile 구현 |
+| `package_stats` | mean/median/percentile implementation |
 
-## 5회 반복 결과
+## 5-rep results
 
-| 모델 | 통과 | 전체 호출 | 통과율 | 평균 지연시간 | P50 | P95 | 추정 token 비용 | 통과 1건당 추정 비용 |
+| Model | Passes | Total calls | Pass rate | Avg latency | P50 | P95 | Estimated token cost | Estimated cost per pass |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | DeepSeek-V4-Pro Foundry | 50 | 50 | 100.0% | 6.24s | 4.410s | 16.323s | $0.073959 | $0.001479 |
 | Claude Opus 4.8 ADB | 50 | 50 | 100.0% | 7.90s | 7.657s | 10.225s | $0.551025 | $0.011020 |
@@ -43,40 +43,39 @@
 | Kimi K2.6 Foundry | 38 | 50 | 76.0% | 25.003s | 20.555s | 46.272s | $0.371297 | $0.009771 |
 | MiniMax M2.5 Foundry | 36 | 50 | 72.0% | 10.337s | 9.417s | 15.342s | $0.059045 | $0.001640 |
 
-> 비용 = `prompt_tokens × input단가 + completion_tokens × output단가` (모델별 $/1M 단가 적용). 통과 1건당 비용 = 추정 token 비용 ÷ 통과 수.
+> Cost = `prompt_tokens × input price + completion_tokens × output price` (per-model $/1M pricing applied). Cost per pass = estimated token cost ÷ number of passes.
 
-## Task 안정성
+## Task stability
 
-| 모델 | 불안정/실패 집중 task |
+| Model | Tasks with concentrated instability/failures |
 | --- | --- |
-| DeepSeek-V4-Pro Foundry | 없음 |
-| Claude Opus 4.8 ADB | 없음 |
-| GPT-5.5 Foundry | 없음 |
-| Grok 4.3 Foundry | 없음 |
+| DeepSeek-V4-Pro Foundry | None |
+| Claude Opus 4.8 ADB | None |
+| GPT-5.5 Foundry | None |
+| Grok 4.3 Foundry | None |
 | GLM-5.1 Foundry | `markdown_toc` |
 | Kimi K2.6 Foundry | `log_redaction`, `markdown_toc`, `package_stats`, `py_slugify`, `cart_discount` |
 | MiniMax M2.5 Foundry | `markdown_toc`, `json_patch`, `rate_limiter`, `sql_builder` |
 
-## 공개 benchmark 대비 해석
+## Interpretation against public benchmarks
 
-공개 coding benchmark는 보통 더 큰 문제셋, 다른 harness, 다른 test-time compute 정책을 사용합니다. 따라서 이번 custom eval의 순위를 공개 leaderboard 순위로 해석하면 안 됩니다.
+Public coding benchmarks typically use a larger problem set, a different harness, and a different test-time compute policy. The ranking from this custom eval should therefore not be read as a public-leaderboard ranking.
 
-| 비교 대상 | 이번 custom eval과의 차이 |
+| Comparison | How it differs from this custom eval |
 | --- | --- |
-| SWE-bench Verified/Lite | repository 전체를 수정하고 official test를 통과해야 하는 agentic patch benchmark |
-| LiveCodeBench | 알고리즘/코딩 문제 중심 |
-| Aider Polyglot | Aider scaffold와 multi-language edit task 중심 |
-| 이번 custom eval | 작은 deterministic unit-test task를 단일 응답/파일 생성 방식으로 평가 |
+| SWE-bench Verified/Lite | An agentic patch benchmark requiring edits across a whole repository that must pass the official tests |
+| LiveCodeBench | Algorithm/coding-problem focused |
+| Aider Polyglot | Centered on the Aider scaffold and multi-language edit tasks |
+| This custom eval | Evaluates small deterministic unit-test tasks via single-response/file generation |
 
-이번 custom eval이 공개 benchmark 기대와 다른 지점:
+Where this custom eval diverges from public-benchmark expectations:
 
-- Kimi K2.6과 MiniMax M2.5는 공개 coding benchmark에서 강하게 보고되지만, 이번 custom eval에서는 출력 형식/특정 deterministic task에서 불안정했습니다.
-- Grok 4.3은 공개 numeric coding benchmark가 부족했지만, 이번 custom eval에서는 50/50으로 안정적이었습니다.
-- Claude Opus 4.8과 GPT-5.5는 작은 unit-test형 task에서는 가장 안정적이었습니다.
-- DeepSeek-V4-Pro는 50/50(100%)으로 완벽했고, **평균 지연 6.24s로 전 모델 중 가장 빨랐습니다**(reasoning 토큰을 별도로 청구하지 않아 출력도 가벼움). 다만 일부 호출에서 P95 16.3s로 latency 분산(편차 6.6s)이 있었습니다.
-- GLM-5.1은 전반적으로 준수했지만 markdown anchor처럼 세부 규칙이 많은 task에서 반복 실패했습니다.
+- Kimi K2.6 and MiniMax M2.5 are reported as strong on public coding benchmarks, but were unstable on output formatting and certain deterministic tasks here.
+- Grok 4.3 had limited public numeric coding benchmarks, but was stable here at 50/50.
+- Claude Opus 4.8 and GPT-5.5 were the most reliable on small unit-test-style tasks.
+- DeepSeek-V4-Pro was flawless at 50/50 (100%) and was **the fastest of all models at 6.24s average latency** (it doesn't bill reasoning tokens separately, so output is lightweight too). That said, some calls showed latency variance (P95 16.3s, 6.6s std-dev).
+- GLM-5.1 was generally solid but repeatedly failed on tasks with many fine-grained rules, such as markdown anchors.
 
-## 결론
+## Conclusion
 
-작은 코드 생성/수정 task에서는 **DeepSeek-V4-Pro, Claude Opus 4.8, GPT-5.5, Grok 4.3**이 모두 100% 통과로 최상위이며, 이 중 **DeepSeek-V4-Pro가 평균 지연 기준 가장 빠릅니다**. 다만 이 결과만으로 SWE-bench식 repository patch 성능을 판단하면 안 되며, SWE-bench 결과는 별도 리포트에서 봐야 합니다(전수 500개에서는 Kimi > DeepSeek > MiniMax > Grok > GLM 순 — [Verified 리포트](./swe-bench-verified-500-report.md) 참고).
-
+On small code generation/editing tasks, **DeepSeek-V4-Pro, Claude Opus 4.8, GPT-5.5, and Grok 4.3** all top the list at a 100% pass rate, and among them **DeepSeek-V4-Pro is the fastest by average latency**. These results alone, however, should not be used to judge SWE-bench-style repository-patch performance — those are covered in a separate report (over the full set of 500, the order is Kimi > DeepSeek > MiniMax > Grok > GLM — see the [Verified report](./swe-bench-verified-500-report.md)).

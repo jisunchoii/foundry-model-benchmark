@@ -1,79 +1,79 @@
-# SWE-bench Verified Trajectory 경향성 분석 (모델별 문제 풀이 스타일)
+# SWE-bench Verified Trajectory analysis (per-model problem-solving style)
 
-## 분석 개요
+## Analysis overview
 
-각 모델이 SWE-bench Verified **전체 500개** 문제를 풀 때 남긴 **trajectory 로그**(에이전트의 모든 사고·명령·관찰 기록)를 파싱해, 모델별 **문제 해결 스타일**을 정량화했습니다.
+We parsed the **trajectory logs** (every thought, command, and observation the agent recorded) that each model left while solving **all 500** SWE-bench Verified problems, and quantified each model's **problem-solving style**.
 
-- **데이터 기준**: 5개 모델 모두 **Verified 전체 500개**(동일 instance, 동일 분류기). 
-- 명령 분류(휴리스틱): `explore`(ls/cat/grep/find/sed -n/head/tail 등 읽기·탐색), `edit`(sed -i/cat >/patch/tee 등 파일 수정), `test`(pytest/tox/python 실행으로 재현·검증), `other`. 5개 모델에 **동일한 정규식 분류기**를 적용.
-- 한 instance = 한 에이전트 세션. steps = assistant 턴 수(= API 호출 수). 명령은 각 턴의 `extra.actions[].command`에서 추출, 실패율은 tool 관찰의 `<returncode>`에서 집계. 사고량은 assistant의 `reasoning_content` 길이.
-- GLM은 trajectory가 있는 446개(빈 패치 58개는 trajectory 디렉터리 없음), 나머지는 ~500개.
+- **Data basis**: all 5 models over the **full 500 of Verified** (same instances, same classifier).
+- Command classification (heuristic): `explore` (read/search such as ls/cat/grep/find/sed -n/head/tail), `edit` (file edits such as sed -i/cat >/patch/tee), `test` (reproduce/verify via pytest/tox/python), `other`. The **same regex classifier** is applied to all 5 models.
+- One instance = one agent session. steps = number of assistant turns (= number of API calls). Commands are extracted from each turn's `extra.actions[].command`; the failure rate is tallied from the `<returncode>` of tool observations. Thinking volume is the length of the assistant's `reasoning_content`.
+- For GLM, the 446 instances that have trajectories (the 58 empty patches have no trajectory directory); the rest are ~500.
 
-## 핵심 지표 요약 
+## Key-metrics summary
 
-| 지표 | Kimi K2.6 | DeepSeek-V4-Pro | MiniMax M2.5 | Grok 4.3 | GLM-5.1 |
+| Metric | Kimi K2.6 | DeepSeek-V4-Pro | MiniMax M2.5 | Grok 4.3 | GLM-5.1 |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Resolved / 500 | **382** | 372 | 369 | 337 | 331 |
-| 평균 steps | 50.5 | 48.4 | 54.8 | **33.6** | 65.3 |
-| 중앙값 steps | 43 | 41 | 46 | **31** | 52 |
-| 사고(reasoning) 글자/턴 | **503** | 0¹ | 255 | 0 | 320 |
-| 사고 출력 턴 비율 | 100% | 0¹% | 100% | 0% | 63% |
-| explore 명령 비율 | 49.1% | **54.1%** | 46.4% | 53.5% | 49.4% |
-| edit 명령 비율 | **21.2%** | 11.4% | 15.2% | 17.7% | 14.9% |
-| test 명령 비율 | 25.5% | 34.2% | **35.3%** | 26.9% | 35.0% |
-| 테스트 실행한 instance | 99.4% | 99.4% | 99.6% | 98.8% | **100%** |
-| 첫 edit까지 명령 수 | **16.0** | 26.8 | 17.0 | 19.0 | 19.8 |
-| 패치 추가 라인(평균) | 40.6 | 9.0 | 60.4 | **6.5** | 266.1² |
-| 패치 수정 파일 수 | 1.26 | 1.19 | 1.24 | **1.07** | 2.09² |
-| 명령 실패율 | 0.13 | 0.11 | 0.10 | 0.12 | **0.09** |
+| Avg steps | 50.5 | 48.4 | 54.8 | **33.6** | 65.3 |
+| Median steps | 43 | 41 | 46 | **31** | 52 |
+| Thinking (reasoning) chars/turn | **503** | 0¹ | 255 | 0 | 320 |
+| Share of turns emitting thinking | 100% | 0¹% | 100% | 0% | 63% |
+| explore command share | 49.1% | **54.1%** | 46.4% | 53.5% | 49.4% |
+| edit command share | **21.2%** | 11.4% | 15.2% | 17.7% | 14.9% |
+| test command share | 25.5% | 34.2% | **35.3%** | 26.9% | 35.0% |
+| Instances that ran tests | 99.4% | 99.4% | 99.6% | 98.8% | **100%** |
+| Commands until first edit | **16.0** | 26.8 | 17.0 | 19.0 | 19.8 |
+| Patch lines added (avg) | 40.6 | 9.0 | 60.4 | **6.5** | 266.1² |
+| Files modified per patch | 1.26 | 1.19 | 1.24 | **1.07** | 2.09² |
+| Command failure rate | 0.13 | 0.11 | 0.10 | 0.12 | **0.09** |
 
-¹ DeepSeek-V4-Pro는 본 Foundry 배포에서 `reasoning_content`가 노출되지 않았습니다(모델이 내부 추론을 안 한다는 의미가 아니라 엔드포인트가 해당 필드를 반환하지 않음 — **unverified**). Grok의 0은 모델이 실제로 사고 토큰을 출력하지 않는 action-first 특성.
-² GLM의 패치 추가 라인 평균은 소수의 대규모 재작성 케이스(아래 실패 시그니처 참조)에 크게 좌우되는 **outlier 민감 평균**입니다.
+¹ DeepSeek-V4-Pro did not expose `reasoning_content` on this Foundry deployment (this does not mean the model does no internal reasoning — the endpoint simply does not return that field — **unverified**). Grok's 0 reflects the model genuinely not emitting thinking tokens, an action-first trait.
+² GLM's average patch-lines-added is an **outlier-sensitive mean**, heavily swayed by a few large-rewrite cases (see the failure signature below).
 
-## 모델별 문제 풀이 스타일
+## Per-model problem-solving style
 
-### Grok 4.3 — "최소 탐색·최소 수정"
-- **압도적으로 효율적**: 평균 33.6 steps로 가장 짧고(다른 모델의 50~65%), 패치도 평균 **6.5 라인 / 1.07 파일**로 가장 작고 정밀.
-- **사고 토큰을 출력하지 않음**(reasoning=0). 곧바로 명령을 실행하는 행동형 에이전트.
-- **실패해도 거의 안 갈아엎음**: 실패 시 패치가 5.4→8.8 라인으로 소폭만 증가, steps도 31→38로 가장 안정적. 못 푸는 문제에 시간/토큰을 낭비하지 않지만 깊이 파고들지도 않음.
-- 토큰·비용이 가장 저렴한 성향과 일치(cache-adj $0.14/resolved).
+### Grok 4.3 — "minimal exploration, minimal edits"
+- **Overwhelmingly efficient**: shortest at 33.6 average steps (50–65% of the others), with the smallest, most precise patches at **6.5 lines / 1.07 files** on average.
+- **Emits no thinking tokens** (reasoning=0). An action-style agent that executes commands immediately.
+- **Barely rewrites even on failure**: on failure the patch grows only slightly, 5.4→8.8 lines, and steps 31→38, the most stable. It doesn't waste time/tokens on problems it can't solve, but it also doesn't dig deep.
+- Consistent with its cheapest token/cost profile (cache-adj $0.14/resolved).
 
-### Kimi K2.6 — "사고 깊고 수정에 적극적"
-- 매 턴 평균 **503자 사고**(가장 김), 100% 턴에서 CoT 출력. **edit 비율 21.2%로 최고** — 탐색만큼 수정에도 적극적.
-- 첫 edit까지 16개 명령으로 **가장 빨리 손을 댐**. resolved **382로 1위**.
-- **막히면 더 시도**: 실패 케이스에서 steps 46→67, 패치 13→129 라인으로 확대. 안 풀리면 더 파고들며 수정을 키우는 끈질긴 성향(단, MiniMax/GLM만큼 폭주하지는 않음).
+### Kimi K2.6 — "thinks deeply, edits aggressively"
+- Averages **503 chars of thinking per turn** (the most), with CoT output on 100% of turns. **Highest edit share at 21.2%** — as aggressive on edits as on exploration.
+- **Gets its hands in fastest**, with 16 commands until the first edit. Resolved **382, #1**.
+- **Tries harder when stuck**: on failure cases, steps expand 46→67 and patches 13→129 lines. A persistent style that digs deeper and grows edits when stuck (though not as runaway as MiniMax/GLM).
 
-### DeepSeek-V4-Pro — "길게 탐색하고 소수 수정"
-- **explore 비율 54.1%로 최고**, **첫 edit까지 26.8개 명령으로 가장 오래 탐색**한 뒤 손을 댑니다. edit 비율은 11.4%로 최저 — 충분히 파악한 뒤 최소한만 수정하는 신중형.
-- **실패 제어가 가장 안정적**: 실패 시 패치가 7.3→13.9 라인으로만 증가(증가폭 최소), 파일 수도 1.19→1.20로 거의 불변. 못 풀어도 폭주하지 않음 — Grok과 함께 가장 "통제된" 실패 시그니처.
-- 단점: 결정론적 빈 패치("이미 고쳐짐") 경향이 있었으나, 재추론으로 empty=0 달성. reasoning 미노출로 사고 스타일은 unverified.
+### DeepSeek-V4-Pro — "explores long, edits little"
+- **Highest explore share at 54.1%**, and **explores longest before acting, with 26.8 commands until the first edit**. Lowest edit share at 11.4% — a cautious style that makes minimal edits after understanding thoroughly.
+- **Most stable failure control**: on failure the patch grows only 7.3→13.9 lines (smallest increase), and file count is nearly unchanged at 1.19→1.20. It doesn't go runaway even when it can't solve — alongside Grok, the most "controlled" failure signature.
+- Downside: it had a tendency toward deterministic empty patches ("already fixed"), but achieved empty=0 via re-reasoning. With reasoning not exposed, its thinking style is unverified.
 
-### MiniMax M2.5 — "맞으면 초정밀, 틀리면 폭주"
-- **가장 뚜렷한 실패 시그니처**: resolved 패치는 평균 **6.9 라인**으로 5개 중 가장 정밀하지만, **unresolved는 평균 212 라인**으로 폭증(30배). 막히면 코드를 대량으로 갈아엎으며 헤매는 runaway over-editing.
-- 실패 시 steps도 49→70으로 급증, 파일 수 1.07→1.72. test 비율 35.3%로 검증은 자주 하지만, 옳은 수정 위치를 못 찾으면 통제력을 잃는 경향.
-- 맞힐 땐 가장 효율적(잠재력 높음)이나 실패 가드레일이 약함.
+### MiniMax M2.5 — "ultra-precise when right, runaway when wrong"
+- **The most pronounced failure signature**: resolved patches average **6.9 lines**, the most precise of the 5, but **unresolved averages 212 lines**, a 30× blowup. When stuck, it mass-rewrites code and flails — runaway over-editing.
+- On failure, steps also spike 49→70 and file count 1.07→1.72. With a test share of 35.3% it verifies often, but tends to lose control when it can't find the right place to fix.
+- Most efficient when it gets it right (high potential), but weak failure guardrails.
 
-### GLM-5.1 — "검증 주도형이지만 실패 시 최대 폭주"
-- **test 비율 35.0% + 명령 실패율 0.09(최저) + 테스트 실행 100%** — 끊임없이 테스트로 확인하며 가장 깔끔하게 명령을 구성하는 방법론자.
-- 사고를 63% 턴에서만 출력(부분 CoT), steps 평균 65.3(최고)·중앙값 52 → 어려운 문제에서 길게 끄는 롱테일.
-- **실패 시그니처가 100개 분석에서 역전**: 이전 Verified-100(django 편향)에서는 GLM의 unresolved 패치가 더 *작았으나*, 전수 500개에서는 resolved 24.6 라인 → **unresolved 961 라인(39배), 파일 1.4→4.1개**로 **5개 모델 중 가장 극단적인 폭주**를 보입니다. 어려운 케이스에서 여러 파일을 대규모로 갈아엎는 패턴이 전수에서 드러났습니다. (※ outlier 민감 평균이지만 방향성은 분명.)
-- 빈 패치 58개("수정 불필요" 결정론적 제출)는 별도 신호 — 분모를 깎아 점수 손해([본 리포트](./swe-bench-verified-500-report.md) 참조).
+### GLM-5.1 — "verification-driven, but the biggest runaway on failure"
+- **35.0% test share + 0.09 command failure rate (lowest) + 100% test execution** — a methodical type that constantly confirms via tests and composes commands most cleanly.
+- Emits thinking on only 63% of turns (partial CoT); steps average 65.3 (highest) and median 52 → a long tail that drags out on hard problems.
+- **The failure signature flips in the 500-set analysis**: in the earlier Verified-100 (django-biased), GLM's unresolved patches were *smaller*, but over the full 500, resolved is 24.6 lines → **unresolved 961 lines (39×), files 1.4→4.1**, the **most extreme runaway of the 5 models**. The pattern of mass-rewriting many files on hard cases emerged over the full set. (Note: an outlier-sensitive mean, but the direction is clear.)
+- The 58 empty patches (deterministic "no fix needed" submissions) are a separate signal — they trim the denominator and hurt the score (see [this report](./swe-bench-verified-500-report.md)).
 
-## 교차 인사이트
+## Cross-cutting insights
 
-- **사고량 ≠ 성능**: 사고 0자인 Grok(337)·DeepSeek(372)과 503자인 Kimi(382)의 격차는 스타일이지 사고 분량이 아닙니다. CoT 분량보다 **탐색·수정의 정밀도**가 성능을 좌우.
-- **실패 패턴이 모델을 5색으로 구분**: 막혔을 때 ① 거의 그대로 멈춤(Grok 5→9, DeepSeek 7→14), ② 더 파고듦(Kimi 13→129), ③ 대량 재작성 폭주(MiniMax 7→212, **GLM 25→961**). 특히 **GLM·MiniMax의 unresolved 패치 폭증은 자동 채점뿐 아니라 코드 리뷰 비용 측면에서도 주의 신호** — 실패한 PR이 수백 라인·여러 파일을 건드림.
-- **상위권의 두 가지 길**: 1위 Kimi(edit 적극형)와 2위 DeepSeek(탐색 신중형)은 정반대 스타일(첫 edit까지 16 vs 27 명령, edit 비율 21% vs 11%)인데도 비슷한 성능 → **단일 정답 스타일은 없음**.
-- **패치 크기 vs 정답률**: resolved 케이스의 작은 패치(Grok 5.4, DeepSeek 7.3, MiniMax 6.9)가 큰 패치보다 불리하지 않음 — SWE-bench Verified는 대체로 **국소적 최소 수정**이 정답인 구조. 큰 패치는 대개 "헤매는 중"의 신호.
-- **공통점**: 모든 모델이 첫 edit 전 16~27개 명령으로 탐색하고, ~99% 테스트를 실행하며, resolved 시 평균 1개 파일만 수정. mini-swe-agent 기본 워크플로(탐색→수정→검증)는 잘 따릅니다.
+- **Thinking volume ≠ performance**: the gap between Grok (337) and DeepSeek (372) with 0 chars of thinking and Kimi (382) with 503 chars is a matter of style, not thinking volume. **Precision of exploration/editing** drives performance more than CoT volume.
+- **Failure patterns split the models into 5 colors**: when stuck, they either ① nearly stop as-is (Grok 5→9, DeepSeek 7→14), ② dig deeper (Kimi 13→129), or ③ go on a mass-rewrite runaway (MiniMax 7→212, **GLM 25→961**). In particular, **the unresolved-patch blowups of GLM and MiniMax are a warning sign not just for automated grading but for code-review cost** — a failed PR touches hundreds of lines across multiple files.
+- **Two roads to the top**: #1 Kimi (edit-aggressive) and #2 DeepSeek (exploration-cautious) have opposite styles (16 vs 27 commands until first edit, 21% vs 11% edit share) yet similar performance → **there is no single correct style**.
+- **Patch size vs solve rate**: the small patches of resolved cases (Grok 5.4, DeepSeek 7.3, MiniMax 6.9) are not disadvantaged versus larger patches — SWE-bench Verified is largely a structure where a **localized minimal fix** is the answer. Large patches are usually a sign of "still flailing."
+- **In common**: every model explores with 16–27 commands before the first edit, runs tests in ~99% of cases, and modifies just 1 file on average when resolved. They follow the mini-swe-agent default workflow (explore → fix → verify) well.
 
-## 주의사항
+## Caveats
 
-- 명령 분류는 정규식 휴리스틱이라 ±소폭 오차가 있습니다(예: `python -c` 재현 코드는 test로 분류, `sed -i`는 edit·`sed -n`은 explore로 구분). 5개 모델에 **동일 분류기**를 적용해 상대 비교는 일관됩니다.
-- 패치 추가 라인 평균(특히 unresolved)은 **소수 대규모 재작성에 민감한 평균**입니다. 방향성(폭주 여부)은 신뢰할 수 있으나 절대값은 중앙값보다 큽니다.
-- DeepSeek-V4-Pro의 reasoning 지표 0은 **Foundry 엔드포인트가 `reasoning_content`를 반환하지 않은 것**으로, 모델의 내부 추론 부재를 의미하지 않습니다(unverified).
-- harvest/RateLimit/ServiceUnavailable 종료는 모델 행동이 아닌 인프라 요인이므로 스타일 해석에서 제외했습니다.
+- The command classification is a regex heuristic, so there is a small ± margin (e.g., `python -c` reproduction code is classified as test; `sed -i` is edit and `sed -n` is explore). Applying the **same classifier** to all 5 models keeps the relative comparison consistent.
+- The average patch-lines-added (especially for unresolved) is a **mean sensitive to a few large rewrites**. The direction (whether it runs away) is reliable, but absolute values are larger than the median.
+- DeepSeek-V4-Pro's reasoning metric of 0 is because **the Foundry endpoint did not return `reasoning_content`**, and does not imply the model lacks internal reasoning (unverified).
+- harvest/RateLimit/ServiceUnavailable terminations are infrastructure factors rather than model behavior, and were excluded from the style interpretation.
 
-## 교차 참조
+## Cross-reference
 
-- 정확도: [swe-bench-verified-500-report.md](./swe-bench-verified-500-report.md)
+- Accuracy: [swe-bench-verified-500-report.md](./swe-bench-verified-500-report.md)
