@@ -71,6 +71,14 @@ Official evaluation results over the full set of 500 human-validated GitHub issu
 | Cost-sensitive, repeated repo-patch runs | MiniMax M2.5, Grok 4.3 | Lowest cost per resolved on Verified ($0.13–0.14, cache-adj) |
 | A single model reliable on both task types | DeepSeek-V4-Pro | 100% on custom + top tied group on Verified; consistently strong across both tracks |
 
+## Next step: model ensembles
+
+The conclusion of this benchmark is that "strengths split by task type — there is no single do-it-all model." Given that, instead of picking one model you can **run several candidates and select the best patch**. A follow-up that validates this as a PoC is [foundry-coding-ensemble](https://github.com/bskim/foundry-coding-ensemble/blob/main/README.md).
+
+- Each model runs its own agent loop independently to produce a candidate patch, and an aggregator selects the best one.
+- Aggregation strategies: ① execution-based selection (automatic evaluation via build · test · typecheck) ② cost-aware routing (try the cheapest candidate first). The per-model pass rates and gross $/resolved measured in this repository feed that selection/routing logic.
+- On the curated dataset (disc10), execution-based selection achieved a 100% pass rate (not a number that generalizes — it validates the feasibility of the selection mechanism as a PoC).
+
 ## Relationship to public benchmarks
 
 | Item | Meaning |
